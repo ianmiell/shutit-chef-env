@@ -137,10 +137,20 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.pause_point('node added?')
 		shutit.logout()
 		shutit.logout()
+
+
+		for machine in ('node1','node2')
+			shutit.login(command='vagrant ssh ' + machine)
+			shutit.login(command='sudo su -',password='vagrant')
+			shutit.install('epel-release')
+			shutit.send('rpm -i https://packages.chef.io/stable/el/7/chef-12.16.42-1.el7.x86_64.rpm')     
+			shutit.logout()
+			shutit.logout()
+		shutit.pause_point('set up node1')
 		return True
 
 	def get_config(self, shutit):
-		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/trusty64')
+		shutit.get_config(self.module_id,'vagrant_image',default='centos/7')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
