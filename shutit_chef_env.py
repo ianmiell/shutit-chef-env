@@ -43,6 +43,12 @@ class shutit_chef_env(ShutItModule):
     chefnode1.vm.box = ''' + '"' + vagrant_image + '"' + '''
     chefnode1.vm.hostname = "chefnode1.vagrant.test"
   end
+
+  config.vm.define "workstation1" do |workstation1|
+    workstation1.vm.box = ''' + '"' + vagrant_image + '"' + '''
+    workstation1.vm.network :private_network, ip: "192.168.2.100"
+    workstation1.vm.hostname = "workstation1.local"
+  end
 end''')
 		pw = shutit.get_env_pass()                                                                                                                                                
 		try:
@@ -138,12 +144,47 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.logout()
 		shutit.logout()
 
+		shutit.login(command='vagrant ssh workstation1')
+		shutit.login(command='sudo su -',password='vagrant')
+		shutit.install('epel-release')
+		shutit.install('git')
+		shutit.send('rpm -i https://packages.chef.io/stable/el/7/chefdk-0.19.6-1.el7.x86_64.rpm')
+		shutit.send('chef verify')
+		shitit.send('chef generate app chef-repo')
+		shutit.send('''echo '.chef' >> /root/chef-repo/.gitignore''')
+		shutit.send('mkdir -p /root/chef-repo/.chef')
+		shutit.send('cd /root/chef-repo/.chef')
+		shutit.send_file('/root/chef-repo/.chef/kramerica-validator.pem',kramerica_validator_pem)
+		shutit.send_file('/root/chef-repo/.chef/kramer.pem',kramer_pem)
+		shutit.send_file('','''current_dir = File.dirname(__FILE__)
+log_level                :info
+log_location             STDOUT
+node_name                'node_name'
+client_key               "#{current_dir}/kramer.pem"
+validation_client_name   'chef-validator'
+validation_key           "#{current_dir}/kramerica-validator.pem"
+chef_server_url          'https://api.chef.io/organizations/KramericaEnterprises'
+cache_type               'BasicFile'
+cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
+cookbook_path            ["#{current_dir}/../cookbooks"]''')
+		shutit.pause_point('checkpoint')
+		shutit.logout()
+		shutit.logout()
 
-		for machine in ('node1','node2')
+		for machine in ('node1','node2'):
 			shutit.login(command='vagrant ssh ' + machine)
 			shutit.login(command='sudo su -',password='vagrant')
 			shutit.install('epel-release')
-			shutit.send('rpm -i https://packages.chef.io/stable/el/7/chef-12.16.42-1.el7.x86_64.rpm')     
+			shutit.send('rpm -i https://packages.chef.io/stable/el/7/chefdk-0.19.6-1.el7.x86_64.rpm')
+			shutit.install('git')
+			shutit.send('mkdir -p /etc/chef')
+			shutit.send_file('/etc/chef/client.rb',"""#/etc/chef/client.rb on Node
+log_level        :info
+log_location     STDOUT
+chef_server_url  'http://master1.local:4000'
+validation_client_name 'kramerica-validator'""")
+			shutit.send_file('/etc/chef/kramerica-validator.pem',kramer_pem)
+			shutit.pause_point('set up node1 ok?')
 			shutit.logout()
 			shutit.logout()
 		shutit.pause_point('set up node1')
