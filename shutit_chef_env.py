@@ -63,7 +63,7 @@ end''')
 			shutit.login(command='sudo su -',password='vagrant')
 			shutit.send('''sed -i 's/PasswordAuthentication no/PasswordAuthentication yes/' /etc/ssh/sshd_config''')
 			shutit.send('''sed -i 's/.*PermitRootLogin.*/PermitRootLogin yes/' /etc/ssh/sshd_config''')
-			shutit.send('service ssh restart')
+			shutit.send('service sshd restart')
 			shutit.send('echo root:' + root_pass + ' | /usr/sbin/chpasswd')
 			shutit.multisend('ssh-keygen',{'Enter file':'','Enter passphrase':'','Enter same pass':''}) 
 			shutit.logout()
@@ -193,7 +193,7 @@ validation_client_name 'kramerica-validator'""")
 		return True
 
 	def get_config(self, shutit):
-		shutit.get_config(self.module_id,'vagrant_image',default='centos/7')
+		shutit.get_config(self.module_id,'vagrant_image',default='ubuntu/xenial64')
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
