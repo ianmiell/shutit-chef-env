@@ -150,13 +150,13 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.install('git')
 		shutit.send('rpm -i https://packages.chef.io/stable/el/7/chefdk-0.19.6-1.el7.x86_64.rpm')
 		shutit.send('chef verify')
-		shitit.send('chef generate app chef-repo')
+		shutit.send('chef generate app chef-repo')
 		shutit.send('''echo '.chef' >> /root/chef-repo/.gitignore''')
 		shutit.send('mkdir -p /root/chef-repo/.chef')
 		shutit.send('cd /root/chef-repo/.chef')
 		shutit.send_file('/root/chef-repo/.chef/kramerica-validator.pem',kramerica_validator_pem)
 		shutit.send_file('/root/chef-repo/.chef/kramer.pem',kramer_pem)
-		shutit.send_file('','''current_dir = File.dirname(__FILE__)
+		shutit.send_file('/root/chef-repo/.chef/knife.rb','''current_dir = File.dirname(__FILE__)
 log_level                :info
 log_location             STDOUT
 node_name                'node_name'
@@ -167,7 +167,9 @@ chef_server_url          'https://api.chef.io/organizations/KramericaEnterprises
 cache_type               'BasicFile'
 cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
 cookbook_path            ["#{current_dir}/../cookbooks"]''')
-		shutit.pause_point('checkpoint')
+		shutit.send('chef verify')
+		shutit.send("""echo 'export PATH="/opt/chefdk/embedded/bin:$PATH"' >> ~/.configuration_file && source ~/.configuration_file""")
+		shutit.send('knife ssl fetch')
 		shutit.logout()
 		shutit.logout()
 
