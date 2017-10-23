@@ -29,25 +29,22 @@ class shutit_chef_env(ShutItModule):
     chefserver.vm.box = ''' + '"' + vagrant_image + '"' + '''
     chefserver.vm.hostname = "chefserver.vagrant.test"
     chefserver.vm.provider :virtualbox do |v|
-      v.customize ["modifyvm", :id, "--memory", "2048"]
-      v.customize ["modifyvm", :id, "--cpus", "2"]
-    end     
+      v.customize ["modifyvm", :id, "--memory", "1024"]
+    end
   end
-
   config.vm.define "chefworkstation1" do |chefworkstation1|
     chefworkstation1.vm.box = ''' + '"' + vagrant_image + '"' + '''
     chefworkstation1.vm.hostname = "chefworkstation1.vagrant.test"
+    chefworkstation1.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--memory", "512"]
+    end
   end
-
   config.vm.define "chefnode1" do |chefnode1|
     chefnode1.vm.box = ''' + '"' + vagrant_image + '"' + '''
     chefnode1.vm.hostname = "chefnode1.vagrant.test"
-  end
-
-  config.vm.define "workstation1" do |workstation1|
-    workstation1.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    workstation1.vm.network :private_network, ip: "192.168.2.100"
-    workstation1.vm.hostname = "workstation1.local"
+    chefnode1.vm.provider :virtualbox do |v|
+      v.customize ["modifyvm", :id, "--memory", "512"]
+    end
   end
 end''')
 		pw = shutit.get_env_pass()                                                                                                                                                
@@ -80,8 +77,9 @@ end''')
 		shutit.login(command='vagrant ssh chefserver')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.send('hostname -f',note='Check the hostname is meaningful')
-		shutit.send_host_file('chef-server-core_12.16.14-1_amd64.deb','chef-server-core_12.16.14-1_amd64.deb')
-		#shutit.send('wget https://packages.chef.io/stable/ubuntu/16.04/chef-server-core_12.16.14-1_amd64',note='Get the chef server package')
+		shutit.send('wget https://github.com/ianmiell/shutit-chef-env/raw/master/chef-server-core_12.16.14-1_amd64.deb.xaa')
+		shutit.send('wget https://github.com/ianmiell/shutit-chef-env/raw/master/chef-server-core_12.16.14-1_amd64.deb.xab')
+		shutit.send('cat chef-server-core_12.16.14-1_amd64.deb.xaa chef-server-core_12.16.14-1_amd64.deb.xab > chef-server-core_12.16.14-1_amd64.deb && rm *xaa *xab')
 		shutit.send('dpkg -i chef-server-core_*.deb',note='Install the package')
 		shutit.send('chef-server-ctl reconfigure',note='Set up the chef server on this host')
 		shutit.send('chef-server-ctl install chef-manage',note='Install chef manager')
