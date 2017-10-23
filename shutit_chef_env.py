@@ -80,7 +80,8 @@ end''')
 		shutit.login(command='vagrant ssh chefserver')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.send('hostname -f',note='Check the hostname is meaningful')
-		shutit.send('wget https://packages.chef.io/stable/ubuntu/14.04/chef-server-core_12.11.1-1_amd64.deb',note='Get the chef server package')
+		shutit.send_host_file('chef-server-core_12.16.14-1_amd64.deb','chef-server-core_12.16.14-1_amd64.deb')
+		#shutit.send('wget https://packages.chef.io/stable/ubuntu/16.04/chef-server-core_12.16.14-1_amd64',note='Get the chef server package')
 		shutit.send('dpkg -i chef-server-core_*.deb',note='Install the package')
 		shutit.send('chef-server-ctl reconfigure',note='Set up the chef server on this host')
 		shutit.send('chef-server-ctl install chef-manage',note='Install chef manager')
@@ -170,6 +171,7 @@ cookbook_path            ["#{current_dir}/../cookbooks"]''')
 		shutit.send('chef verify')
 		shutit.send("""echo 'export PATH="/opt/chefdk/embedded/bin:$PATH"' >> ~/.configuration_file && source ~/.configuration_file""")
 		shutit.send('knife ssl fetch')
+		shutit.pause_point('upload')
 		shutit.logout()
 		shutit.logout()
 
@@ -197,26 +199,6 @@ validation_client_name 'kramerica-validator'""")
 		shutit.get_config(self.module_id,'vagrant_provider',default='virtualbox')
 		shutit.get_config(self.module_id,'gui',default='false')
 		shutit.get_config(self.module_id,'memory',default='1024')
-		return True
-
-	def test(self, shutit):
-
-		return True
-
-	def finalize(self, shutit):
-
-		return True
-
-	def isinstalled(self, shutit):
-
-		return False
-
-	def start(self, shutit):
-
-		return True
-
-	def stop(self, shutit):
-
 		return True
 
 def module():
