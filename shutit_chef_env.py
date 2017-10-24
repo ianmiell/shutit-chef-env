@@ -145,7 +145,7 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
 		shutit.send_file('/root/.chef/admin.pem',admin_pem)
 		shutit.send('knife ssl fetch')
-		shutit.send('knife bootstrap -N chefnode1 chefnode1')
+		shutit.send('knife bootstrap -N chefnode1.vagrant.test chefnode1.vagrant.test')
 		shutit.logout()
 		shutit.logout()
 
@@ -153,49 +153,28 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.install('epel-release')
 		shutit.install('git')
-		shutit.send('rpm -i https://packages.chef.io/stable/el/7/chefdk-0.19.6-1.el7.x86_64.rpm')
+		shutit.install('alien')
+		shutit.send('wget -q https://packages.chef.io/stable/el/7/chefdk-0.19.6-1.el7.x86_64.rpm')
+		shutit.send('alien -i --scripts chefdk-0.19.6-1.el7.x86_64.rpm')
+		shutit.send('mkdir .chef')
+		shutit.send('cd .chef')
+		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
+		shutit.send_file('/root/.chef/admin.pem',admin_pem)
+		shutit.send('cd /root')
 		shutit.send('chef verify')
+		shutit.send('knife ssl fetch')
 		shutit.send('chef generate app chef-repo')
 		shutit.send('''echo '.chef' >> /root/chef-repo/.gitignore''')
 		shutit.send('mkdir -p /root/chef-repo/.chef')
 		shutit.send('cd /root/chef-repo/.chef')
-		shutit.send_file('/root/chef-repo/.chef/kramerica-validator.pem',kramerica_validator_pem)
-		shutit.send_file('/root/chef-repo/.chef/kramer.pem',kramer_pem)
-		shutit.send_file('/root/chef-repo/.chef/knife.rb','''current_dir = File.dirname(__FILE__)
-log_level                :info
-log_location             STDOUT
-node_name                'node_name'
-client_key               "#{current_dir}/kramer.pem"
-validation_client_name   'chef-validator'
-validation_key           "#{current_dir}/kramerica-validator.pem"
-chef_server_url          'https://api.chef.io/organizations/KramericaEnterprises'
-cache_type               'BasicFile'
-cache_options( :path => "#{ENV['HOME']}/.chef/checksums" )
-cookbook_path            ["#{current_dir}/../cookbooks"]''')
-		shutit.send('chef verify')
 		shutit.send("""echo 'export PATH="/opt/chefdk/embedded/bin:$PATH"' >> ~/.configuration_file && source ~/.configuration_file""")
 		shutit.send('knife ssl fetch')
-		shutit.pause_point('upload')
+		shutit.send('cd /root/chef-repo/cookbooks')
+		shutit.send('knife cookbook upload chef-repo -o .')
 		shutit.logout()
 		shutit.logout()
 
-		#for machine in ('node1','node2'):
-		#	shutit.login(command='vagrant ssh ' + machine)
-		#	shutit.login(command='sudo su -',password='vagrant')
-		#	shutit.install('epel-release')
-		#	shutit.send('rpm -i https://packages.chef.io/stable/el/7/chefdk-0.19.6-1.el7.x86_64.rpm')
-		#	shutit.install('git')
-		#	shutit.send('mkdir -p /etc/chef')
-		#	shutit.send_file('/etc/chef/client.rb',"""#/etc/chef/client.rb on Node
-#log_level        :info
-#log_location     STDOUT
-#chef_server_url  'http://master1.local:4000'
-#validation_client_name 'kramerica-validator'""")
-		#	shutit.send_file('/etc/chef/kramerica-validator.pem',kramer_pem)
-		#	shutit.pause_point('set up node1 ok?')
-		#	shutit.logout()
-		#	shutit.logout()
-		shutit.pause_point('all done?')
+		shutit.pause_point('********************************************************************************\n\nYou are on the host.\n\nThe chef node is chefnode1.vagrant.test\n\nThe chef workstation is chefworkstation1.vagrant.test\n\nThe chef server is chefserver.vagrant.test\n\n********************************************************************************')
 		return True
 
 	def get_config(self, shutit):
