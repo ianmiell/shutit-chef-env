@@ -29,7 +29,7 @@ class shutit_chef_env(ShutItModule):
     chefserver.vm.box = ''' + '"' + vagrant_image + '"' + '''
     chefserver.vm.hostname = "chefserver.vagrant.test"
     chefserver.vm.provider :virtualbox do |v|
-      v.customize ["modifyvm", :id, "--memory", "2048"]
+      v.customize ["modifyvm", :id, "--memory", "1024"]
     end
   end
   config.vm.define "chefworkstation1" do |chefworkstation1|
