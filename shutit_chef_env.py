@@ -88,10 +88,10 @@ end''')
 		shutit.send('chef-server-ctl reconfigure',note='Set up the chef server on this host')
 		shutit.send('chef-server-ctl install chef-manage',note='Install chef manager')
 		shutit.send("""chef-server-ctl user-create admin admin admin admin@example.com examplepass -f admin.pem""",note='Create the admin user certificate')
-		shutit.send("""chef-server-ctl org-create digitalocean "DigitalOcean, Inc." --association_user admin -f digitalocean-validator.pem""",note='Create the organisation validator certificate')
+		shutit.send("""chef-server-ctl org-create mycorp "MyCorp" --association_user admin -f mycorp-validator.pem""",note='Create the organisation validator certificate')
 		admin_pem = shutit.send_and_get_output('cat admin.pem')
 #chef-server-ctl install chef-manage
-		validator_pem = shutit.send_and_get_output('cat digitalocean-validator.pem')
+		validator_pem = shutit.send_and_get_output('cat mycorp-validator.pem')
 		shutit.logout()
 		shutit.logout()
 
@@ -114,16 +114,16 @@ end''')
 		shutit.send('source /root/.bash_profile')
 		shutit.send('mkdir /root/chef-repo/.chef')
 		shutit.send_file('/root/chef-repo/.chef/admin.pem',admin_pem)
-		shutit.send_file('/root/chef-repo/.chef/digitalocean-validator.pem',validator_pem)
+		shutit.send_file('/root/chef-repo/.chef/mycorp-validator.pem',validator_pem)
 		# Really annoyingly, node_name is 'admin'?
 		knife_rb_file = '''current_dir = File.dirname(__FILE__)
 log_level                :info
 log_location             STDOUT
 node_name                "admin"
 client_key               "#{current_dir}/admin.pem"
-validation_client_name   "digitalocean-validator"
-validation_key           "#{current_dir}/digitalocean-validator.pem"
-chef_server_url          "https://chefserver.vagrant.test/organizations/digitalocean"
+validation_client_name   "mycorp-validator"
+validation_key           "#{current_dir}/mycorp-validator.pem"
+chef_server_url          "https://chefserver.vagrant.test/organizations/mycorp"
 syntax_check_cache_path  "#{ENV['HOME']}/.chef/syntaxcache"
 cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.send_file('/root/chef-repo/.chef/knife.rb',knife_rb_file)
