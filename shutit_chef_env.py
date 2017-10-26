@@ -171,7 +171,11 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.logout()
 		shutit.logout()
 
+		for machine in machine_names:
+			shutit.send('vagrant snapshot ' + machine,note='Snapshot the vagrant machine')
+
 		shutit.pause_point('********************************************************************************\n\nYou are on the host.\n\nThe chef node is chefnode1.vagrant.test\n\nThe chef workstation is chefworkstation1.vagrant.test\n\nThe chef server is chefserver.vagrant.test\n\n********************************************************************************')
+
 		return True
 
 	def get_config(self, shutit):
