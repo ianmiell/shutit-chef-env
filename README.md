@@ -2,6 +2,7 @@
 
 A complete Chef environment in Vagrant. 
 
+![ShutIt Chef Env](https://raw.githubusercontent.com/ianmiell/shutit-chef-env/master/shutit-chef-env-1.png)
 
 Includes:
 
