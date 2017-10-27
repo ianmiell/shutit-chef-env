@@ -2,6 +2,7 @@
 
 A complete Chef environment in Vagrant. 
 
+
 Includes:
 
 - Chef server
@@ -12,10 +13,10 @@ Includes:
 
 ## Pre-requisites
 
-- https://www.virtualbox.org/wiki/Downloads[Virtualbox]
-- https://www.vagrantup.com[Vagrant]
-- https://github.com/vagrant-landrush/landrush#installation[Vagrant landrush plugin]
-- https://ianmiell.github.io/shutit[ShutIt]
+- [Virtualbox](https://www.virtualbox.org/wiki/Downloads)
+- [Vagrant](https://www.vagrantup.com)
+- [Vagrant landrush plugin](https://github.com/vagrant-landrush/landrush#installation)
+- [ShutIt](https://ianmiell.github.io/shutit)
 
 ## To run
 
