@@ -1,0 +1,18 @@
+# shutit-chef-env
+
+A complete Chef environment in Vagrant. 
+
+Includes:
+
+- Chef server
+- Chef workstation
+- Chef node
+- Certificate setup
+- Client setup (knife, chef-client etc)
+
+## Pre-requisites
+
+- [Vagrant](https://www.vagrantup.com) (with Virtualbox provider)
+- [ShutIt](https://ianmiell.github.io/shutit) `pip install Shutit`
+
+
