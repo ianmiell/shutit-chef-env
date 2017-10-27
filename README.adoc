@@ -12,7 +12,8 @@ Includes:
 
 ## Pre-requisites
 
-- [Vagrant](https://www.vagrantup.com) (with Virtualbox provider)
+- (Vagrant)[https://www.vagrantup.com]
+- (Virtualbox) [https://www.virtualbox.org/wiki/Downloads]
 - [ShutIt](https://ianmiell.github.io/shutit) `pip install Shutit`
 
 
