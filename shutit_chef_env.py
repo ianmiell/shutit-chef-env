@@ -118,28 +118,23 @@ end''')
 		shutit.logout()
 		shutit.logout()
 
-		# Set up Chef workstation.
+
+		# Set up 
 		shutit.login(command='vagrant ssh chefworkstation1')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.send('wget -q https://packages.chef.io/stable/ubuntu/12.04/chefdk_1.0.3-1_amd64.deb')
 		shutit.send('dpkg -i chefdk*deb')
-		# Ensure git is available
+		shutit.install('epel-release')
+		shutit.install('git')
+		shutit.install('alien')
 		shutit.install('git')
 		shutit.send('git config --global user.name "Your Name"')
 		shutit.send('git config --global user.email "username@domain.com"')
 		#shutit.send('git add .')
 		#shutit.send('git commit -m "Excluding the ./.chef directory from version control"')
 		shutit.send('cd /root')
-		shutit.send('mkdir -p /root/chef-repo/.chef')
-		shutit.send('echo ".chef" >> /root/chef-repo/.gitignore')
-		shutit.send('chef generate repo chef-repo')
-		shutit.send('cd /root/chef-repo')
-		shutit.send('chef verify')
-		shutit.send('''echo 'eval "$(chef shell-init bash)"' >> /root/.bash_profile''')
-		shutit.send('source /root/.bash_profile')
-		shutit.send_file('/root/chef-repo/.chef/admin.pem',admin_pem)
-		shutit.send_file('/root/chef-repo/.chef/mycorp-validator.pem',validator_pem)
-		# Really annoyingly, node_name is 'admin'?
+		shutit.send('mkdir .chef')
+		shutit.send('cd .chef')
 		knife_rb_file = '''current_dir = File.dirname(__FILE__)
 log_level                :info
 log_location             STDOUT
@@ -150,14 +145,40 @@ validation_key           "#{current_dir}/mycorp-validator.pem"
 chef_server_url          "https://chefserver.vagrant.test/organizations/mycorp"
 syntax_check_cache_path  "#{ENV['HOME']}/.chef/syntaxcache"
 cookbook_path            ["#{current_dir}/../cookbooks"]'''
-		shutit.send_file('/root/chef-repo/.chef/knife.rb',knife_rb_file)
-		shutit.send('cd /root/chef-repo')
-		# Fetch ssl info.
+		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
+		shutit.send_file('/root/.chef/admin.pem',admin_pem)
+		shutit.send('cd /root')
+		shutit.send('chef verify')
 		shutit.send('knife ssl fetch')
-		# Check knife client list runs ok.
-		shutit.send('knife client list')
+		shutit.send('''echo 'eval "$(chef shell-init bash)"' >> /root/.bash_profile''')
+		shutit.send('chef generate app chef-repo')
+		shutit.send('''echo '.chef' >> /root/chef-repo/.gitignore''')
+		shutit.send('mkdir -p /root/chef-repo/.chef')
+		shutit.send('cd /root/chef-repo/.chef')
+		shutit.send("""echo 'export PATH="/opt/chefdk/embedded/bin:$PATH"' >> ~/.configuration_file && source ~/.configuration_file""")
+		shutit.send('knife ssl fetch')
+		shutit.send('cd /root/chef-repo/cookbooks')
+		shutit.send('knife cookbook upload chef-repo -o .')
 		shutit.logout()
 		shutit.logout()
+
+		## Set up Chef workstation.
+		## Ensure git is available
+		#shutit.send('mkdir -p /root/chef-repo/.chef')
+		#shutit.send('echo ".chef" >> /root/chef-repo/.gitignore')
+		#shutit.send('chef generate repo chef-repo')
+		#shutit.send('source /root/.bash_profile')
+		#shutit.send_file('/root/chef-repo/.chef/admin.pem',admin_pem)
+		#shutit.send_file('/root/chef-repo/.chef/mycorp-validator.pem',validator_pem)
+		## Really annoyingly, node_name is 'admin'?
+		#shutit.send_file('/root/chef-repo/.chef/knife.rb',knife_rb_file)
+		#shutit.send('cd /root/chef-repo')
+		## Fetch ssl info.
+		#shutit.send('knife ssl fetch')
+		## Check knife client list runs ok.
+		#shutit.send('knife client list')
+		#shutit.logout()
+		#shutit.logout()
 
 		# Set up Chef node and bootstrap node.
 		shutit.login(command='vagrant ssh chefnode1')
@@ -173,30 +194,8 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.logout()
 		shutit.logout()
 
-		shutit.login(command='vagrant ssh chefworkstation1')
-		shutit.login(command='sudo su -',password='vagrant')
-		shutit.install('epel-release')
-		shutit.install('git')
-		shutit.install('alien')
-		shutit.send('wget -q https://packages.chef.io/stable/el/7/chefdk-0.19.6-1.el7.x86_64.rpm')
-		shutit.send('alien -i --scripts chefdk-0.19.6-1.el7.x86_64.rpm')
-		shutit.send('mkdir .chef')
-		shutit.send('cd .chef')
-		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
-		shutit.send_file('/root/.chef/admin.pem',admin_pem)
-		shutit.send('cd /root')
-		shutit.send('chef verify')
-		shutit.send('knife ssl fetch')
-		shutit.send('chef generate app chef-repo')
-		shutit.send('''echo '.chef' >> /root/chef-repo/.gitignore''')
-		shutit.send('mkdir -p /root/chef-repo/.chef')
-		shutit.send('cd /root/chef-repo/.chef')
-		shutit.send("""echo 'export PATH="/opt/chefdk/embedded/bin:$PATH"' >> ~/.configuration_file && source ~/.configuration_file""")
-		shutit.send('knife ssl fetch')
-		shutit.send('cd /root/chef-repo/cookbooks')
-		shutit.send('knife cookbook upload chef-repo -o .')
-		shutit.logout()
-		shutit.logout()
+
+		shutit.pause_point('Test')
 
 		for machine in machine_names:
 			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')

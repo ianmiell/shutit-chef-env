@@ -12,8 +12,9 @@ Includes:
 
 ## Pre-requisites
 
-- https://www.vagrantup.com[Vagrant]
 - https://www.virtualbox.org/wiki/Downloads[Virtualbox]
+- https://www.vagrantup.com[Vagrant]
+- https://github.com/vagrant-landrush/landrush#installation[Vagrant landrush plugin]
 - https://ianmiell.github.io/shutit[ShutIt]
 
 ## To run
