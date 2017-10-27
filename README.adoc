@@ -13,7 +13,7 @@ Includes:
 ## Pre-requisites
 
 - https://www.vagrantup.com[Vagrant]
-- Virtualboxhttps://www.virtualbox.org/wiki/Downloads[Virtualbox]
+- https://www.virtualbox.org/wiki/Downloads[Virtualbox]
 - https://ianmiell.github.io/shutit[ShutIt]
 
 ## To run
