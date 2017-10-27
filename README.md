@@ -19,11 +19,12 @@ Includes:
 
 ## To run
 
-----
+```
 git clone --recursive https://github.com/ianmiell/shutit-chef-env
 cd shutit-chef-env
 ./run.sh
-----
+```
 
+## Video
 
 [![asciicast](https://asciinema.org/a/hkos3EPsTscvN5y7FJnfOliXA.png)](https://asciinema.org/a/hkos3EPsTscvN5y7FJnfOliXA)
