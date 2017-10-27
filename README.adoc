@@ -26,3 +26,4 @@ cd shutit-chef-env
 ----
 
 
+[![asciicast](https://asciinema.org/a/hkos3EPsTscvN5y7FJnfOliXA.png)](https://asciinema.org/a/hkos3EPsTscvN5y7FJnfOliXA)
