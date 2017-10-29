@@ -19,13 +19,21 @@ Includes:
 - [Vagrant landrush plugin](https://github.com/vagrant-landrush/landrush#installation)
 - [ShutIt](https://ianmiell.github.io/shutit)
 
-## To run
+## Run
 
 ```
 git clone --recursive https://github.com/ianmiell/shutit-chef-env
 cd shutit-chef-env
 ./run.sh
 ```
+
+## Why?
+
+This can be used for a number of reasons:
+
+- as a training tool for Chef newbies
+- to demonstrate how a Chef infrastructure works
+- to test Chef code that depends on a Chef server being available
 
 ## Video
 
