@@ -12,6 +12,17 @@ Includes:
 - Certificate setup
 - Client setup (knife, chef-client etc)
 
+## Why?
+
+This can be used for a number of reasons:
+
+- as a training tool for Chef newbies
+- to demonstrate how a Chef infrastructure works
+- to test Chef code that depends on a Chef server being available
+
+When I started Chef I tried in vain to find good docs on how to set up my own Chef environment. I could have used something like this.
+
+
 ## Pre-requisites
 
 - [Virtualbox](https://www.virtualbox.org/wiki/Downloads)
@@ -27,13 +38,6 @@ cd shutit-chef-env
 ./run.sh
 ```
 
-## Why?
-
-This can be used for a number of reasons:
-
-- as a training tool for Chef newbies
-- to demonstrate how a Chef infrastructure works
-- to test Chef code that depends on a Chef server being available
 
 ## Video
 
