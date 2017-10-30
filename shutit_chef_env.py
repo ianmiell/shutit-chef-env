@@ -40,6 +40,8 @@ class shutit_chef_env(ShutItModule):
     chefserver.vm.hostname = "chefserver.vagrant.test"
     chefserver.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--memory", "1024"]
+      v.customize ["modifyvm", :id, "--memory", "1024"]
+      v.gui = true
     end
   end
   config.vm.define "chefworkstation1" do |chefworkstation1|
@@ -100,6 +102,7 @@ end''')
 		# Set up Chef server.
 		shutit.login(command='vagrant ssh chefserver')
 		shutit.login(command='sudo su -',password='vagrant')
+		shutit.install('chef-server-webui')
 		# Get and install chef server deb.
 		shutit.send('wget -q https://github.com/ianmiell/shutit-chef-env/raw/master/chef-server-core_12.16.14-1_amd64.deb.xaa')
 		shutit.send('wget -q https://github.com/ianmiell/shutit-chef-env/raw/master/chef-server-core_12.16.14-1_amd64.deb.xab')
