@@ -165,24 +165,6 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.logout()
 		shutit.logout()
 
-		## Set up Chef workstation.
-		## Ensure git is available
-		#shutit.send('mkdir -p /root/chef-repo/.chef')
-		#shutit.send('echo ".chef" >> /root/chef-repo/.gitignore')
-		#shutit.send('chef generate repo chef-repo')
-		#shutit.send('source /root/.bash_profile')
-		#shutit.send_file('/root/chef-repo/.chef/admin.pem',admin_pem)
-		#shutit.send_file('/root/chef-repo/.chef/mycorp-validator.pem',validator_pem)
-		## Really annoyingly, node_name is 'admin'?
-		#shutit.send_file('/root/chef-repo/.chef/knife.rb',knife_rb_file)
-		#shutit.send('cd /root/chef-repo')
-		## Fetch ssl info.
-		#shutit.send('knife ssl fetch')
-		## Check knife client list runs ok.
-		#shutit.send('knife client list')
-		#shutit.logout()
-		#shutit.logout()
-
 		# Set up Chef node and bootstrap node.
 		shutit.login(command='vagrant ssh chefnode1')
 		shutit.login(command='sudo su -',password='vagrant')
@@ -196,7 +178,6 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.send('knife bootstrap -N chefnode1.vagrant.test chefnode1.vagrant.test')
 		shutit.logout()
 		shutit.logout()
-
 
 		shutit.pause_point('Test')
 
