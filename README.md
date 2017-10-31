@@ -26,6 +26,13 @@ When I started Chef I tried in vain to find good docs on how to set up my own Ch
 
 ## Pre-requisites
 
+Works and tested on:
+
+- Mac OSx
+- Linux
+
+Requires:
+
 - [Virtualbox](https://www.virtualbox.org/wiki/Downloads)
 - [Vagrant](https://www.vagrantup.com)
 - [Vagrant landrush plugin](https://github.com/vagrant-landrush/landrush#installation)
