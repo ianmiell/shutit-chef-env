@@ -146,6 +146,9 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		# Generate a skeleton chef repo to upload.
 		shutit.send('chef generate app chef-repo')
 		shutit.send("""echo 'export PATH="/opt/chefdk/embedded/bin:$PATH"' >> ~/.configuration_file && source ~/.configuration_file""")
+		# Add (commented out) debug tool. See: http://jtimberman.housepub.org/blog/2015/09/01/quick-tip-alternative-chef-shell-with-pry/
+		shutit.send('''echo "#require 'pry'
+#binding.pry" >> /root/chef-repo/cookbooks/chef-repo/recipes/default.rb''')
 		# Upload the generated cookbook
 		shutit.send('knife cookbook upload chef-repo -o /root/chef-repo/cookbooks')
 		shutit.logout()
@@ -176,8 +179,6 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.send('chef-client')
 		shutit.logout()
 		shutit.logout()
-
-		shutit.pause_point('Test')
 
 		for machine in machine_names:
 			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')

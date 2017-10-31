@@ -16,8 +16,9 @@ Includes:
 
 This can be used for a number of reasons:
 
-- as a training tool for Chef newbies
 - to demonstrate how a Chef infrastructure works
+- to work on chef recipes while offline
+- as a training tool for Chef newbies
 - to test Chef code that depends on a Chef server being available
 
 When I started Chef I tried in vain to find good docs on how to set up my own Chef environment. I could have used something like this.
