@@ -25,7 +25,7 @@ class shutit_chef_env(ShutItModule):
 			shutit.send('vagrant plugin install landrush')
 
 		# Set machine names.
-		machine_names = ('chefnode1','chefworkstation1','chefserver')
+		machine_names = ('chefnode1','chefworkstation','chefserver')
 		# Set up Vagarantfile.
 		shutit.send('vagrant init ' + vagrant_image)
 		shutit.send_file(run_dir + '/' + module_name + '/Vagrantfile','''Vagrant.configure("2") do |config|
@@ -41,13 +41,12 @@ class shutit_chef_env(ShutItModule):
     chefserver.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--memory", "1024"]
       v.customize ["modifyvm", :id, "--memory", "1024"]
-      v.gui = true
     end
   end
-  config.vm.define "chefworkstation1" do |chefworkstation1|
-    chefworkstation1.vm.box = ''' + '"' + vagrant_image + '"' + '''
-    chefworkstation1.vm.hostname = "chefworkstation1.vagrant.test"
-    chefworkstation1.vm.provider :virtualbox do |v|
+  config.vm.define "chefworkstation" do |chefworkstation|
+    chefworkstation.vm.box = ''' + '"' + vagrant_image + '"' + '''
+    chefworkstation.vm.hostname = "chefworkstation.vagrant.test"
+    chefworkstation.vm.provider :virtualbox do |v|
       v.customize ["modifyvm", :id, "--memory", "512"]
     end
   end
@@ -121,23 +120,7 @@ end''')
 		shutit.logout()
 		shutit.logout()
 
-
-		# Set up 
-		shutit.login(command='vagrant ssh chefworkstation1')
-		shutit.login(command='sudo su -',password='vagrant')
-		shutit.send('wget -q https://packages.chef.io/stable/ubuntu/12.04/chefdk_1.0.3-1_amd64.deb')
-		shutit.send('dpkg -i chefdk*deb')
-		shutit.install('epel-release')
-		shutit.install('git')
-		shutit.install('alien')
-		shutit.install('git')
-		shutit.send('git config --global user.name "Your Name"')
-		shutit.send('git config --global user.email "username@domain.com"')
-		#shutit.send('git add .')
-		#shutit.send('git commit -m "Excluding the ./.chef directory from version control"')
-		shutit.send('cd /root')
-		shutit.send('mkdir .chef')
-		shutit.send('cd .chef')
+		# Store the knife.rb file contents.
 		knife_rb_file = '''current_dir = File.dirname(__FILE__)
 log_level                :info
 log_location             STDOUT
@@ -148,34 +131,49 @@ validation_key           "#{current_dir}/mycorp-validator.pem"
 chef_server_url          "https://chefserver.vagrant.test/organizations/mycorp"
 syntax_check_cache_path  "#{ENV['HOME']}/.chef/syntaxcache"
 cookbook_path            ["#{current_dir}/../cookbooks"]'''
+
+		# Set up Chef workstation.
+		shutit.login(command='vagrant ssh chefworkstation')
+		shutit.login(command='sudo su -',password='vagrant')
+		shutit.send('wget -q https://packages.chef.io/stable/ubuntu/12.04/chefdk_1.0.3-1_amd64.deb && dpkg -i chefdk*deb && rm -f chefdk*deb')
+		shutit.send('mkdir -p /root/.chef')
 		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
 		shutit.send_file('/root/.chef/admin.pem',admin_pem)
-		shutit.send('cd /root')
+		# Verify the chef install.
 		shutit.send('chef verify')
 		shutit.send('knife ssl fetch')
 		shutit.send('''echo 'eval "$(chef shell-init bash)"' >> /root/.bash_profile''')
+		# Generate a skeleton chef repo to upload.
 		shutit.send('chef generate app chef-repo')
-		shutit.send('''echo '.chef' >> /root/chef-repo/.gitignore''')
-		shutit.send('mkdir -p /root/chef-repo/.chef')
-		shutit.send('cd /root/chef-repo/.chef')
 		shutit.send("""echo 'export PATH="/opt/chefdk/embedded/bin:$PATH"' >> ~/.configuration_file && source ~/.configuration_file""")
-		shutit.send('knife ssl fetch')
-		shutit.send('cd /root/chef-repo/cookbooks')
-		shutit.send('knife cookbook upload chef-repo -o .')
+		# Upload the generated cookbook
+		shutit.send('knife cookbook upload chef-repo -o /root/chef-repo/cookbooks')
 		shutit.logout()
 		shutit.logout()
 
 		# Set up Chef node and bootstrap node.
 		shutit.login(command='vagrant ssh chefnode1')
 		shutit.login(command='sudo su -',password='vagrant')
-		shutit.send('wget -q https://packages.chef.io/stable/ubuntu/12.04/chef_12.16.42-1_amd64.deb')
-		shutit.send('dpkg -i chef_12.16.42-1_amd64.deb ')
+		shutit.send('wget -q https://packages.chef.io/stable/ubuntu/12.04/chef_12.16.42-1_amd64.deb && dpkg -i chef_12.16.42-1_amd64.deb && rm -f chef_12.16.42-1_amd64.deb')
 		shutit.send('mkdir .chef')
-		shutit.send('cd .chef')
 		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
 		shutit.send_file('/root/.chef/admin.pem',admin_pem)
 		shutit.send('knife ssl fetch')
 		shutit.send('knife bootstrap -N chefnode1.vagrant.test chefnode1.vagrant.test')
+		shutit.logout()
+		shutit.logout()
+
+		# Assign the repo to the node using knife.
+		shutit.login(command='vagrant ssh chefworkstation')
+		shutit.login(command='sudo su -',password='vagrant')
+		shutit.send('knife node run_list add chefnode1.vagrant.test chef-repo')
+		shutit.logout()
+		shutit.logout()
+		
+		# Go to the node and run chef-client.
+		shutit.login(command='vagrant ssh chefnode1')
+		shutit.login(command='sudo su -',password='vagrant')
+		shutit.send('chef-client')
 		shutit.logout()
 		shutit.logout()
 
@@ -184,7 +182,7 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		for machine in machine_names:
 			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')
 
-		shutit.pause_point('********************************************************************************\n\nYou are on the host.\n\nThe chef node is chefnode1.vagrant.test\n\nThe chef workstation is chefworkstation1.vagrant.test\n\nThe chef server is chefserver.vagrant.test\n\n********************************************************************************')
+		shutit.pause_point('********************************************************************************\n\nYou are on the host.\n\nThe chef node is chefnode1.vagrant.test\n\nThe chef workstation is chefworkstation.vagrant.test\n\nThe chef server is chefserver.vagrant.test\n\n********************************************************************************')
 
 		return True
 
