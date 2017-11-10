@@ -101,7 +101,7 @@ end''')
 		# Set up Chef server.
 		shutit.login(command='vagrant ssh chefserver')
 		shutit.login(command='sudo su -',password='vagrant')
-		shutit.install('chef-server-webui')
+		#shutit.install('chef-server-webui')
 		# Get and install chef server deb.
 		shutit.send('wget -q https://github.com/ianmiell/shutit-chef-env/raw/master/chef-server-core_12.16.14-1_amd64.deb.xaa')
 		shutit.send('wget -q https://github.com/ianmiell/shutit-chef-env/raw/master/chef-server-core_12.16.14-1_amd64.deb.xab')
@@ -157,7 +157,12 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		# Set up Chef node and bootstrap node.
 		shutit.login(command='vagrant ssh chefnode1')
 		shutit.login(command='sudo su -',password='vagrant')
+		ipaddress = shutit.send_and_get_output(r"""ip addr show enp0s8 | grep -w link.ether | awk '{print $2}' | sed 's/\(.*\).24/\1/'""")
+		macaddress = shutit.send_and_get_output(r"""ip addr show enp0s8 | grep inet | awk '{print $2}'""")
 		shutit.send('wget -q https://packages.chef.io/stable/ubuntu/12.04/chef_12.16.42-1_amd64.deb && dpkg -i chef_12.16.42-1_amd64.deb && rm -f chef_12.16.42-1_amd64.deb')
+		shutit.send(r'''sed -i 's/\(.*ipaddress "\).*/\1 "''' + ipaddress + '''"/' /opt/chef/embedded/lib/ruby/gems/2.3.0/gems/ohai-8.21.0/lib/ohai/plugins/linux/network.rb''')
+		shutit.send(r'''sed -i 's/\(.*macaddress "\)m/\1 "''' + macaddress + '''"/' /opt/chef/embedded/lib/ruby/gems/2.3.0/gems/ohai-8.21.0/lib/ohai/plugins/linux/network.rb''')
+		shutit.pause_point('chef ohio')
 		shutit.send('mkdir .chef')
 		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
 		shutit.send_file('/root/.chef/admin.pem',admin_pem)
