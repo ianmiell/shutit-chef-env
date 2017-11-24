@@ -120,6 +120,7 @@ end''')
 		shutit.logout()
 		shutit.logout()
 
+		###############################################################################
 		# Store the knife.rb file contents.
 		knife_rb_file = '''current_dir = File.dirname(__FILE__)
 log_level                :info
@@ -131,7 +132,9 @@ validation_key           "#{current_dir}/mycorp-validator.pem"
 chef_server_url          "https://chefserver.vagrant.test/organizations/mycorp"
 syntax_check_cache_path  "#{ENV['HOME']}/.chef/syntaxcache"
 cookbook_path            ["#{current_dir}/../cookbooks"]'''
+		###############################################################################
 
+		###############################################################################
 		# Set up Chef workstation.
 		shutit.login(command='vagrant ssh chefworkstation')
 		shutit.login(command='sudo su -',password='vagrant')
@@ -153,7 +156,9 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.send('knife cookbook upload chef-repo -o /root/chef-repo/cookbooks')
 		shutit.logout()
 		shutit.logout()
+		###############################################################################
 
+		###############################################################################
 		# Set up Chef node and bootstrap node.
 		shutit.login(command='vagrant ssh chefnode1')
 		shutit.login(command='sudo su -',password='vagrant')
@@ -161,7 +166,7 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		macaddress = shutit.send_and_get_output(r"""ip addr show enp0s8 | grep link.ether | awk '{print $2}'""").upper().strip()
 		shutit.send('wget -q https://packages.chef.io/stable/ubuntu/12.04/chef_12.16.42-1_amd64.deb && dpkg -i chef_12.16.42-1_amd64.deb && rm -f chef_12.16.42-1_amd64.deb')
 		shutit.send(r'''sed -i 's/\(.*ipaddress "\).*/\1 "''' + ipaddress + '''"/' /opt/chef/embedded/lib/ruby/gems/2.3.0/gems/ohai-8.21.0/lib/ohai/plugins/linux/network.rb''')
-		shutit.send(r'''sed -i 's/\(.*macaddress m\).*/\1 "''' + macaddress + '''"/' /opt/chef/embedded/lib/ruby/gems/2.3.0/gems/ohai-8.21.0/lib/ohai/plugins/linux/network.rb''')
+		shutit.send(r'''sed -i 's/\(.*macaddress \)m/\1 "''' + macaddress + '''"/' /opt/chef/embedded/lib/ruby/gems/2.3.0/gems/ohai-8.21.0/lib/ohai/plugins/linux/network.rb''')
 		shutit.pause_point('chef ohio')
 		shutit.send('mkdir .chef')
 		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
@@ -170,23 +175,31 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.send('knife bootstrap -N chefnode1.vagrant.test chefnode1.vagrant.test')
 		shutit.logout()
 		shutit.logout()
+		###############################################################################
 
+		###############################################################################
 		# Assign the repo to the node using knife.
 		shutit.login(command='vagrant ssh chefworkstation')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.send('knife node run_list add chefnode1.vagrant.test chef-repo')
 		shutit.logout()
 		shutit.logout()
+		###############################################################################
 		
+		###############################################################################
 		# Go to the node and run chef-client.
 		shutit.login(command='vagrant ssh chefnode1')
 		shutit.login(command='sudo su -',password='vagrant')
 		shutit.send('chef-client')
 		shutit.logout()
 		shutit.logout()
+		###############################################################################
 
+		###############################################################################
+		# Snapshot machines
 		for machine in machine_names:
 			shutit.send('vagrant snapshot save ' + machine,note='Snapshot the vagrant machine')
+		###############################################################################
 
 		shutit.pause_point('********************************************************************************\n\nYou are on the host.\n\nThe chef node is chefnode1.vagrant.test\n\nThe chef workstation is chefworkstation.vagrant.test\n\nThe chef server is chefserver.vagrant.test\n\n********************************************************************************')
 
