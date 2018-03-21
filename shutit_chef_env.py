@@ -167,7 +167,6 @@ cookbook_path            ["#{current_dir}/../cookbooks"]'''
 		shutit.send('wget -q https://packages.chef.io/stable/ubuntu/12.04/chef_12.16.42-1_amd64.deb && dpkg -i chef_12.16.42-1_amd64.deb && rm -f chef_12.16.42-1_amd64.deb')
 		shutit.send(r'''sed -i 's/\(.*ipaddress "\).*/\1 "''' + ipaddress + '''"/' /opt/chef/embedded/lib/ruby/gems/2.3.0/gems/ohai-8.21.0/lib/ohai/plugins/linux/network.rb''')
 		shutit.send(r'''sed -i 's/\(.*macaddress \)m/\1 "''' + macaddress + '''"/' /opt/chef/embedded/lib/ruby/gems/2.3.0/gems/ohai-8.21.0/lib/ohai/plugins/linux/network.rb''')
-		shutit.pause_point('chef ohio')
 		shutit.send('mkdir .chef')
 		shutit.send_file('/root/.chef/knife.rb',knife_rb_file)
 		shutit.send_file('/root/.chef/admin.pem',admin_pem)
